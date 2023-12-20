@@ -9,6 +9,11 @@ pub struct Vec3 {
     pub z : f32,
 }
 
+pub fn vec3(x: f32, y: f32, z:f32) -> Vec3
+{
+    return Vec3{x, y, z};
+}
+
 // -Vec3
 impl ops::Neg for Vec3 {
     type Output = Vec3;
@@ -98,11 +103,6 @@ impl ops::Div<f32> for Vec3 {
             z: (self.z / rhs),
         }
     }
-}
-
-pub fn vec3(x: f32, y: f32, z:f32) -> Vec3
-{
-    return Vec3{x, y, z};
 }
 
 pub fn dot(a: Vec3, b: Vec3) -> f32 {
