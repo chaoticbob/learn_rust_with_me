@@ -9,3 +9,10 @@ Coming from C++, I wanted to understand the basics of Rust:
 * Project Organization
 
 This project is a super simple ray tracer that demonstrates various aspects of the above topics. 
+
+## Building and Running
+From this project's directory:
+```
+cargo build
+cargo run
+```
