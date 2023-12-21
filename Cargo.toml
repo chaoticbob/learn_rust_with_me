@@ -3,6 +3,7 @@ resolver = "2"
 members = [
 	"1_ray_trace_a_sphere",
 	"2_ray_trace_some_spheres",
+	"part_3_ray_trace_shadows",
 	"rng_example",
 ]
 
