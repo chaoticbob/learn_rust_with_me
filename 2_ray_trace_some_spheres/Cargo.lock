@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "rust-path-tracer"
+name = "2_ray_trace_some_spheres"
 version = "0.1.0"

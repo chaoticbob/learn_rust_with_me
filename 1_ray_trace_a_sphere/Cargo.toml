@@ -1,5 +1,5 @@
 [package]
-name = "rust-path-tracer"
+name = "part_1_ray_trace_a_sphere"
 version = "0.1.0"
 edition = "2021"
 
