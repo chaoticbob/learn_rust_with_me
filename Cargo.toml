@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+members = [
+	"1_ray_trace_a_sphere",
+	"2_ray_trace_some_spheres",
+	"rng_example",
+]
+
+[workspace.dependencies]
+rand = "0.8.5"
+rand_pcg = "0.3.1"
