@@ -1,18 +1,25 @@
 #![allow(dead_code)]
 
 use std::ops;
+use crate::vec2::Vec2;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
 }
 
-pub static Y_AXIS: Vec3 = Vec3{x :0.0, y: 1.0, z: 0.0};
+pub static X_AXIS: Vec3 = Vec3{x: 1.0, y: 0.0, z: 0.0};
+pub static Y_AXIS: Vec3 = Vec3{x: 0.0, y: 1.0, z: 0.0};
+pub static Z_AXIS: Vec3 = Vec3{x: 0.0, y: 0.0, z: 1.0};
 
 pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
     Vec3 { x, y, z }
+}
+
+pub fn as_vec3(v: Vec2, z: f32) -> Vec3 {
+    vec3(v.x, v.y, z)
 }
 
 // -Vec3
@@ -89,6 +96,19 @@ impl ops::Mul<Vec3> for f32 {
             x: (self * rhs.x),
             y: (self * rhs.y),
             z: (self * rhs.z),
+        }
+    }
+}
+
+// Vec3 / Vec3
+impl ops::Div for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: (self.x / rhs.x),
+            y: (self.y / rhs.y),
+            z: (self.z / rhs.z),
         }
     }
 }

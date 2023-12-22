@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::vec3::*;
 use std::ops;
+use crate::vec3::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec4 {
@@ -130,6 +130,34 @@ impl ops::Mul<Vec4> for f32 {
             y: (self * rhs.y),
             z: (self * rhs.z),
             w: (self * rhs.w),
+        }
+    }
+}
+
+// Vec4 / Vec4
+impl ops::Div for Vec4 {
+    type Output = Vec4;
+
+    fn div(self, rhs: Vec4) -> Vec4 {
+        Vec4 {
+            x: (self.x / rhs.x),
+            y: (self.y / rhs.y),
+            z: (self.z / rhs.z),
+            w: (self.z / rhs.w),
+        }
+    }
+}
+
+// Vec4 / f32
+impl ops::Div<f32> for Vec4 {
+    type Output = Vec4;
+
+    fn div(self, rhs: f32) -> Vec4 {
+        Vec4 {
+            x: (self.x / rhs),
+            y: (self.y / rhs),
+            z: (self.z / rhs),
+            w: (self.w / rhs),
         }
     }
 }
