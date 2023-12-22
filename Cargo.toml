@@ -4,6 +4,7 @@ members = [
 	"1_ray_trace_a_sphere",
 	"2_ray_trace_some_spheres",
 	"part_3_ray_trace_shadows",
+    "part_4_ray_trace_reflections",
 	"rng_example",
 ]
 
