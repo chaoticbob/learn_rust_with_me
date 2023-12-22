@@ -104,24 +104,7 @@ fn main() {
     for thread in threads {
         thread.join().unwrap();
     }
-
-/*
-    for y in 0..image.height {
-        for x in 0..image.width {
-            let u = (x as f32) / (image.width as f32);
-            let v = (y as f32) / (image.height as f32);
-
-            let ray = scene.camera.generate_ray(vec2(u, v));
-            let color = scene.trace_recursive(ray, 0, 3);
-
-            let r: u8 = (color.x * 255.0) as u8;
-            let g: u8 = (color.y * 255.0) as u8;
-            let b: u8 = (color.z * 255.0) as u8;
-            image.set_pixel(x, y, r, g, b);
-        }
-        println!("Traced scanline {}", y);
-    }
-*/
+    
     println!("Ray trace took: {} seconds", timer.elapsed().as_secs_f32());
 
     shared_image.lock().unwrap().write_ppm("reflection.ppm");
