@@ -54,9 +54,9 @@ fn main() {
     let timer = std::time::Instant::now();
 
     // Queue of scanlines
-    let scanlines = std::sync::Arc::new(std::sync::Mutex::new(std::collections::VecDeque::new()));
+    let scanline_queue = std::sync::Arc::new(std::sync::Mutex::new(std::collections::VecDeque::new()));
     for y in 0..image.height {
-        scanlines.lock().unwrap().push_back(y);
+        scanline_queue.lock().unwrap().push_back(y);
     }
 
     // Save these so we lock less often
@@ -70,7 +70,7 @@ fn main() {
     let num_cores = 8;
     let mut threads = Vec::new();
     for _i in 0..num_cores {
-        let local_scanlines = scanlines.clone();
+        let local_scanlines = scanline_queue.clone();
         let local_image = shared_image.clone();
         let local_scene = shared_scene.clone();
         let thread = std::thread::spawn(move || {
