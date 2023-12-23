@@ -6,9 +6,11 @@ members = [
 	"part_3_ray_trace_shadows",
     "part_4_ray_trace_reflections",
     "part_5_ray_trace_multithread_scanlines",
+    "part_6_ray_trace_window",
 	"rng_example",
 ]
 
 [workspace.dependencies]
+minifb = "0.25.0"
 rand = "0.8.5"
 rand_pcg = "0.3.1"

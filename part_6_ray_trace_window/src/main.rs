@@ -21,8 +21,22 @@ mod camera;
 mod scene;
 mod vec2;
 
+const WINDOW_WIDTH : u32 = 854;
+const WINDOW_HEIGHT: u32 = 480;
+
 fn main() {
-    let image = Bitmap::new(854, 480);
+    let mut window = minifb::Window::new(
+        file!(),
+        WINDOW_WIDTH as usize,
+        WINDOW_HEIGHT as usize,
+        minifb::WindowOptions::default(),
+    ).unwrap();
+
+    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+
+    // -------------------------------------------------------------------------
+
+    let image = Bitmap::new(WINDOW_WIDTH, WINDOW_HEIGHT);
     let aspect_ratio = (image.width as f32) / (image.height as f32);
 
     let mut scene = Scene::default();
@@ -66,6 +80,8 @@ fn main() {
     // Make these accessible across thread
     let shared_image = std::sync::Arc::new(std::sync::Mutex::new(image));
     let shared_scene = std::sync::Arc::new(scene);
+    let shared_scanline_rendered = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let shared_stop_render = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
 
     let num_cores = 8;
     let mut threads = Vec::new();
@@ -73,25 +89,39 @@ fn main() {
         let local_scanlines = scanline_queue.clone();
         let local_image = shared_image.clone();
         let local_scene = shared_scene.clone();
+        let local_scanline_rendered = shared_scanline_rendered.clone();
+        let local_stop_render = shared_stop_render.clone();
         let thread = std::thread::spawn(move || {
             loop {
                 let scanline = local_scanlines.lock().unwrap().pop_front();
                 match scanline {
                     Some(y) => {
+                        let mut stop_render = false;
                         for x in 0..image_width {
+                            stop_render = local_stop_render.load(std::sync::atomic::Ordering::Relaxed);
+                            if (stop_render) {
+                                break;
+                            }
+
                             let u = (x as f32) / (image_width as f32);
                             let v = (y as f32) / (image_height as f32);
 
                             let ray = local_scene.camera.generate_ray(vec2(u, v));
                             let color = local_scene.trace_recursive(ray, 0, 3);
 
-                            let r: u8 = (color.x * 255.0) as u8;
+                            // Swap R and B due to minifb's pixel format
+                            let r: u8 = (color.z * 255.0) as u8;
                             let g: u8 = (color.y * 255.0) as u8;
-                            let b: u8 = (color.z * 255.0) as u8;
+                            let b: u8 = (color.x * 255.0) as u8;
 
                             // Totally not efficient but is okay for this example
                             local_image.lock().unwrap().set_pixel(x, y, r, g, b);
                         }
+                        if (stop_render) {
+                            break;
+                        }
+
+                        local_scanline_rendered.store(true, std::sync::atomic::Ordering::Relaxed);
                         println!("Traced scanline {}", y);
                     },
                     None => break,
@@ -101,11 +131,46 @@ fn main() {
         threads.push(thread);
     }
 
+    // -------------------------------------------------------------------------
+
+    let mut write_file = true;
+    let mut wrote_time = false;
+    while (window.is_open()) {
+        if (window.is_key_down(minifb::Key::Escape)) {
+            shared_stop_render.store(true, std::sync::atomic::Ordering::Relaxed);
+            write_file = false;
+            break;
+        }
+
+        let has_new_scanline = shared_scanline_rendered.load(std::sync::atomic::Ordering::Relaxed);
+        if (has_new_scanline) {
+            let locked_image = shared_image.lock().unwrap();
+            let pixels = locked_image.get_pixels();
+            let u32_pixels = unsafe { std::slice::from_raw_parts(pixels.as_ptr() as *const u32, (WINDOW_WIDTH * WINDOW_HEIGHT * 4) as usize) };
+
+            window.update_with_buffer(u32_pixels, WINDOW_WIDTH as usize, WINDOW_HEIGHT as usize).unwrap();
+
+            shared_scanline_rendered.store(false, std::sync::atomic::Ordering::Relaxed);
+        }
+        else {
+            window.update();
+        }
+
+        if (scanline_queue.lock().unwrap().is_empty()) {
+            if (!wrote_time) {
+                println!("Ray trace took: {} seconds", timer.elapsed().as_secs_f32());
+                wrote_time = true;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
     for thread in threads {
         thread.join().unwrap();
     }
 
-    println!("Ray trace took: {} seconds", timer.elapsed().as_secs_f32());
-
-    shared_image.lock().unwrap().write_ppm("reflection.ppm");
+    if (write_file) {
+        shared_image.lock().unwrap().write_ppm("window.ppm");
+    }
 }
