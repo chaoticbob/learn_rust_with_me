@@ -144,8 +144,11 @@ fn main() {
 
         let has_new_scanline = shared_scanline_rendered.load(std::sync::atomic::Ordering::Relaxed);
         if (has_new_scanline) {
+            // Lock image
             let locked_image = shared_image.lock().unwrap();
+            // Get pixels
             let pixels = locked_image.get_pixels();
+            // Cast from &Vec<u8> to u32&
             let u32_pixels = unsafe { std::slice::from_raw_parts(pixels.as_ptr() as *const u32, (WINDOW_WIDTH * WINDOW_HEIGHT * 4) as usize) };
 
             window.update_with_buffer(u32_pixels, WINDOW_WIDTH as usize, WINDOW_HEIGHT as usize).unwrap();
