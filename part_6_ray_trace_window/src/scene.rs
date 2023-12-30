@@ -45,11 +45,27 @@ impl Scene {
         return false;
     }
 
-    pub fn shade(&self, ray: &Ray, hit_index: usize, closest_t: f32) -> Vec3 {
-        let color = self.spheres[hit_index].shade(&ray, closest_t, self.camera.get_eye(), self.light);
+    fn phong(&self, P: Vec3, N: Vec3, V: Vec3) -> f32 {
+        let L = normalize(self.light - P);
+        let R = reflect(-L, N);
+        let d = dot(N, L).max(0.0);
+        let s = dot(R, V).max(0.0).powf(30.0);
+        let a = 0.2;
+        let c = a + d + s;
+        return c;
+    }
 
+    pub fn shade(&self, ray: &Ray, hit_index: usize, t: f32) -> Vec3 {
+        // Light
+        let P = ray.pos + t * ray.dir;
+        let N = self.spheres[hit_index].get_normal(P);
+        let V = normalize(self.camera.get_eye() - P);
+        let c = self.phong(P, N, V);
+        let color = c *self.spheres[hit_index].color;
+
+        // Shadow
         let mut shadow : f32 = 0.0;
-        let P = ray.pos + (closest_t * 0.9999) * ray.dir;
+        let P = ray.pos + (t * 0.9999) * ray.dir;
         let shadowRay = Ray { pos: P, dir: vec3::normalize(self.light - P)};
         let hit = self.trace_any_hit(shadowRay);
         if (hit) {

@@ -67,6 +67,7 @@ fn main() {
     let shared_image = std::sync::Arc::new(std::sync::Mutex::new(image));
     let shared_scene = std::sync::Arc::new(scene);
 
+    // Spawn threads to ray trace each scanline
     let num_cores = 8;
     let mut threads = Vec::new();
     for _i in 0..num_cores {
@@ -107,5 +108,5 @@ fn main() {
 
     println!("Ray trace took: {} seconds", timer.elapsed().as_secs_f32());
 
-    shared_image.lock().unwrap().write_ppm("reflection.ppm");
+    shared_image.lock().unwrap().write_ppm("multithread_scanlines.ppm");
 }

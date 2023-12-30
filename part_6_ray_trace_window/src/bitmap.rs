@@ -50,4 +50,15 @@ impl Bitmap {
         }
         println!("Wrote PPM file: {}", file_path);
     }
+
+    pub fn write_ppm_bgr(&self, file_path: &str) {
+        let mut f = File::create(file_path).unwrap();
+        writeln!(&mut f, "P3").unwrap();
+        writeln!(&mut f, "{} {}", self.width, self.height).unwrap();
+        writeln!(&mut f, "255").unwrap();
+        for pixel in self.data.chunks(4) {
+            writeln!(&mut f, "{: >3} {: >3} {: >3}", pixel[2], pixel[1], pixel[0]).unwrap()
+        }
+        println!("Wrote PPM file: {}", file_path);
+    }
 }

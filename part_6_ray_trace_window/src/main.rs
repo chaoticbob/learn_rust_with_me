@@ -83,6 +83,7 @@ fn main() {
     let shared_scanline_rendered = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let shared_stop_render = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
 
+    // Spawn threads to ray trace each scanline
     let num_cores = 8;
     let mut threads = Vec::new();
     for _i in 0..num_cores {
@@ -135,6 +136,8 @@ fn main() {
 
     let mut write_file = true;
     let mut wrote_time = false;
+
+    // Loop while the window is open
     while (window.is_open()) {
         if (window.is_key_down(minifb::Key::Escape)) {
             shared_stop_render.store(true, std::sync::atomic::Ordering::Relaxed);
@@ -148,7 +151,7 @@ fn main() {
             let locked_image = shared_image.lock().unwrap();
             // Get pixels
             let pixels = locked_image.get_pixels();
-            // Cast from &Vec<u8> to u32&
+            // Cast from &Vec<u8> to &[u32]
             let u32_pixels = unsafe { std::slice::from_raw_parts(pixels.as_ptr() as *const u32, (WINDOW_WIDTH * WINDOW_HEIGHT * 4) as usize) };
 
             window.update_with_buffer(u32_pixels, WINDOW_WIDTH as usize, WINDOW_HEIGHT as usize).unwrap();
@@ -174,6 +177,6 @@ fn main() {
     }
 
     if (write_file) {
-        shared_image.lock().unwrap().write_ppm("window.ppm");
+        shared_image.lock().unwrap().write_ppm_bgr("window.ppm");
     }
 }

@@ -32,20 +32,7 @@ impl Sphere {
 
         *t = if (t1 < t2) { t1 } else { t2 };
 
-        hit
-    }
-
-    pub fn shade(&self, ray: &Ray, t: f32, eye_pos: Vec3, light_pos: Vec3) -> Vec3 {
-        let P = ray.pos + t * ray.dir;
-        let N = normalize(P - self.pos);
-        let L = normalize(light_pos - P);
-        let V = normalize(eye_pos - P);
-        let R = reflect(-L, N);
-        let d = dot(N, L).max(0.0);
-        let s = dot(R, V).max(0.0).powf(30.0);
-        let a = 0.2;
-        let c = a + d + s;
-        Vec3 { x: c, y: c, z: c } * self.color
+        return hit;
     }
 
     pub fn get_normal(&self, P : Vec3) -> Vec3 {
