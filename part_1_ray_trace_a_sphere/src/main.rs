@@ -52,5 +52,5 @@ fn main() {
         }
     }
 
-    image.write_ppm("sphere.ppm");
+    image.write_ppm("part_1_ray_trace_a_sphere.ppm");
 }

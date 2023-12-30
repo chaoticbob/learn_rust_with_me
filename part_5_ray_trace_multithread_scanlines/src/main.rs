@@ -37,7 +37,7 @@ fn main() {
     scene.spheres.push(Sphere {
         pos: vec3(0.0, -1000.0, 0.0),
         radius: 1000.0,
-        color: vec3(0.980, 0.863, 0.596),
+        color: 1.5 * vec3(0.490, 0.430, 0.295),
     });
     generate_sphere_flake(
         0,
@@ -108,5 +108,5 @@ fn main() {
 
     println!("Ray trace took: {} seconds", timer.elapsed().as_secs_f32());
 
-    shared_image.lock().unwrap().write_ppm("multithread_scanlines.ppm");
+    shared_image.lock().unwrap().write_ppm("part_5_ray_trace_multithread_scanlines.ppm");
 }

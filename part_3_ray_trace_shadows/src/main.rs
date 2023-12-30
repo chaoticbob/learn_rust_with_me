@@ -37,7 +37,7 @@ fn main() {
     scene.spheres.push(Sphere {
         pos: vec3(0.0, -1000.0, 0.0),
         radius: 1000.0,
-        color: vec3(0.980, 0.863, 0.596),
+        color: 1.5 * vec3(0.490, 0.430, 0.295),
     });
     generate_sphere_flake(
         0,
@@ -75,5 +75,5 @@ fn main() {
         println!("Traced scanline {}", y);
     }
 
-    image.write_ppm("shadows.ppm");
+    image.write_ppm("part_3_ray_trace_shadows.ppm");
 }

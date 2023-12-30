@@ -21,7 +21,7 @@ fn main() {
     let aspect_ratio = (image.width as f32) / (image.height as f32);
     let mut spheres = Vec::<Sphere>::new();
     spheres.push(Sphere { pos: vec3(0.0, 1.0, 0.0), radius: 1.0, color: vec3(0.3, 0.7, 0.9) });
-    spheres.push(Sphere { pos: vec3(0.0, -1000.0, 0.0), radius: 1000.0, color: vec3(0.980, 0.863, 0.596) });
+    spheres.push(Sphere { pos: vec3(0.0, -1000.0, 0.0), radius: 1000.0, color: 1.5 * vec3(0.490, 0.430, 0.295) });
 
     generate_sphere_flake(0, 3, 1.0 / 3.0, 1.0, vec3(0.0, 1.0, 0.0), vec3(0.0, 1.0, 0.0), &mut spheres);
 
@@ -71,5 +71,5 @@ fn main() {
         println!("Traced scanline {}", y);
     }
 
-    image.write_ppm("spheres.ppm");
+    image.write_ppm("part_2_ray_trace_some_spheres.ppm");
 }

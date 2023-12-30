@@ -92,7 +92,7 @@ impl Scene {
         let N = self.spheres[hit_index].get_normal(P);
         let R = vec3::reflect(ray.dir, N);
 
-        P = P + (0.001 * ray.dir);
+        P = P - (0.001 * ray.dir);
         let reflectionRay = Ray{ pos: P, dir: R };
 
         let reflection = self.trace_recursive(reflectionRay, depth + 1, max_depth);
