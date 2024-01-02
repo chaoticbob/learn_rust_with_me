@@ -1,5 +1,5 @@
 # Learn Rust With Me
-![alt text](images/screenshots/part7.png?raw=true)
+![part7.png](images/screenshots/part_7.png?raw=true)
 
 # For C++ Programmers
 This is a quick Rust guide for C++ programmers.
