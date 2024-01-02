@@ -44,7 +44,7 @@ fn main() {
     let aspect_ratio = (image.width as f32) / (image.height as f32);
 
     let mut scene = Scene::default();
-    scene.camera.look_at(vec3(-2.0, 7.0, -5.0), vec3(-0.5, 1.0, 0.5), Y_AXIS);
+    scene.camera.look_at(vec3(-4.0, 5.0, -5.0), vec3(-1.5, 1.0, 0.5), Y_AXIS);
     scene.camera.perspective(60.0, aspect_ratio, 1.0, 10000.0);
 
     scene.primitives.push(Box::new(Sphere {
