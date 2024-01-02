@@ -1,5 +1,5 @@
 [package]
-name = "part_6_ray_trace_window"
+name = "part_7_ray_trace_primitives"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 minifb = { workspace = true }
+stb_image_write_rust = { workspace = true }
 num_cpus = { workspace = true }

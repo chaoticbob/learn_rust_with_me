@@ -68,7 +68,7 @@ fn main() {
     let shared_scene = std::sync::Arc::new(scene);
 
     // Spawn threads to ray trace each scanline
-    let num_cores = 8;
+    let num_cores = num_cpus::get() - 1;
     let mut threads = Vec::new();
     for _i in 0..num_cores {
         let local_scanlines = scanline_queue.clone();

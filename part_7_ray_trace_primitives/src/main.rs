@@ -1,10 +1,13 @@
 #![allow(unused_parens)]
+#![allow(unused_imports)]
 
+use crate::primitives::{Cylinder, RoundedBox};
+use crate::primitives::AABox;
+use std::f32::consts::PI;
 use crate::bitmap::Bitmap;
-use crate::sphere::Sphere;
-use crate::sphere_flake::generate_sphere_flake;
+use crate::primitives::{Ellipsoid, Goursat, Plane, Sphere, Torus};
 use crate::vec2::vec2;
-use crate::vec3::vec3;
+use crate::vec3::{normalize, vec3};
 use crate::vec3::Y_AXIS;
 use crate::vec4::vec4;
 use crate::scene::Scene;
@@ -13,16 +16,17 @@ mod bitmap;
 mod mat4;
 mod quat;
 mod ray;
-mod sphere;
+mod primitives;
 mod sphere_flake;
 mod vec3;
 mod vec4;
 mod camera;
 mod scene;
 mod vec2;
+mod transform;
 
-const WINDOW_WIDTH : u32 = 854;
-const WINDOW_HEIGHT: u32 = 480;
+const WINDOW_WIDTH : u32 = 1280;
+const WINDOW_HEIGHT: u32 = 720;
 
 fn main() {
     let mut window = minifb::Window::new(
@@ -40,30 +44,61 @@ fn main() {
     let aspect_ratio = (image.width as f32) / (image.height as f32);
 
     let mut scene = Scene::default();
-    scene.camera.look_at(vec3(0.0, 4.0, -3.0), vec3(0.0, 1.0, 0.0), Y_AXIS);
+    scene.camera.look_at(vec3(-1.0, 7.0, -4.5), vec3(0.0, 1.0, 0.5), Y_AXIS);
     scene.camera.perspective(60.0, aspect_ratio, 1.0, 10000.0);
 
-    scene.spheres.push(Sphere {
-        pos: vec3(0.0, 1.0, 0.0),
-        radius: 1.0,
+    scene.primitives.push(Box::new(Sphere {
+        transform: transform::from_position(vec3(-2.0, 1.0, -1.0)),
         color: vec3(0.3, 0.7, 0.9),
-    });
-    scene.spheres.push(Sphere {
-        pos: vec3(0.0, -1000.0, 0.0),
-        radius: 1000.0,
-        color: 1.5 * vec3(0.490, 0.430, 0.295),
-    });
-    generate_sphere_flake(
-        0,
-        3,
-        1.0 / 3.0,
-        1.0,
-        vec3(0.0, 1.0, 0.0),
-        vec3(0.0, 1.0, 0.0),
-        &mut scene.spheres,
-    );
+    }));
 
-    scene.light = vec3(2.0, 25.0, -5.0);
+    scene.primitives.push(Box::new(Ellipsoid {
+        transform: transform::from_position(vec3(1.5, 1.0, -1.0)),
+        radii: vec3(1.0, 0.5, 1.5),
+        color: vec3(0.9, 0.7, 0.3),
+    }));
+
+    scene.primitives.push(Box::new(Goursat {
+        transform: transform::from_position(vec3(2.0, 1.0, 3.0)),
+        ka: 0.3,
+        kb: 0.9,
+        color: vec3(0.7, 0.9, 0.3),
+    }));
+
+    scene.primitives.push(Box::new(Torus {
+        transform: transform::transform(vec3(-2.0, 0.5, 3.0), vec3(PI/2.0, 0.0, 0.0), vec3::ONE),
+        major_radius: 1.0,
+        minor_radius: 0.5,
+        color: vec3(0.9, 0.3, 0.3),
+    }));
+
+    scene.primitives.push(Box::new(AABox {
+        transform: transform::transform(vec3(5.0, 1.0, 1.0), vec3(0.0, 0.0, 0.0), vec3::ONE),
+        size: vec3::vec3(0.8, 1.0, 1.5),
+        color: vec3(0.9, 0.3, 0.83),
+    }));
+
+    scene.primitives.push(Box::new(Cylinder {
+        transform: transform::transform(vec3(-5.0, 0.0, 6.0), vec3(0.0, 0.0, 0.0), vec3::ONE),
+        start: vec3::vec3(0.0, 3.0, 0.0),
+        end: vec3::vec3(0.0, 0.0, 0.0),
+        radius: 1.0,
+        color: vec3(0.5, 0.5, 0.5),
+    }));
+
+    scene.primitives.push(Box::new(RoundedBox {
+        transform: transform::transform(vec3(-5.0, 1.2, 1.0), vec3(0.0, 0.0, 0.0), vec3::ONE),
+        size: vec3(0.8, 0.8, 0.8),
+        radius: 0.4,
+        color: vec3(0.1, 0.1, 0.1),
+    }));
+
+    scene.primitives.push(Box::new(Plane {
+        transform: transform::from_position(vec3(0.0, 0.0, 0.0)),
+        color: 1.5 * vec3(0.430, 0.430, 0.440),
+    }));
+
+    scene.light = vec3(-3.0, 10.0, -5.0);
 
     let timer = std::time::Instant::now();
 
@@ -77,7 +112,7 @@ fn main() {
     let image_width = image.width;
     let image_height = image.height;
 
-    // Make these accessible across thread
+    // Make these accessible across threads
     let shared_image = std::sync::Arc::new(std::sync::Mutex::new(image));
     let shared_scene = std::sync::Arc::new(scene);
     let shared_scanline_rendered = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
@@ -97,6 +132,9 @@ fn main() {
                 let scanline = local_scanlines.lock().unwrap().pop_front();
                 match scanline {
                     Some(y) => {
+                        // Get pointer to scanline
+                        let mut ptr = local_image.lock().unwrap().get_scanline(y);
+
                         let mut stop_render = false;
                         for x in 0..image_width {
                             stop_render = local_stop_render.load(std::sync::atomic::Ordering::Relaxed);
@@ -115,8 +153,20 @@ fn main() {
                             let g: u8 = (color.y * 255.0) as u8;
                             let b: u8 = (color.x * 255.0) as u8;
 
-                            // Totally not efficient but is okay for this example
-                            local_image.lock().unwrap().set_pixel(x, y, r, g, b);
+                            // Write pixel - doesn't look like you can index using [] as you would in C/C++.
+                            unsafe {
+                                *ptr = r;
+                                ptr = ptr.offset(1);
+
+                                *ptr = g;
+                                ptr = ptr.offset(1);
+
+                                *ptr = b;
+                                ptr = ptr.offset(1);
+
+                                *ptr = 255;
+                                ptr = ptr.offset(1);
+                            }
                         }
                         if (stop_render) {
                             break;
@@ -177,6 +227,7 @@ fn main() {
     }
 
     if (write_file) {
-        shared_image.lock().unwrap().write_ppm_bgr("part_6_ray_trace_window.ppm");
+        shared_image.lock().unwrap().swap_red_and_blue();
+        shared_image.lock().unwrap().write_png("part_7_ray_trace_primitives.png");
     }
 }

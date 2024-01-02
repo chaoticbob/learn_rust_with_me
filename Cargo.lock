@@ -179,6 +179,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hermit-abi"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d77f7ec81a6d05a3abb01ab6eb7590f6083d08449fe5a1c8b1e620283546ccb7"
+
+[[package]]
 name = "instant"
 version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -298,6 +304,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "num_cpus"
+version = "1.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
+dependencies = [
+ "hermit-abi",
+ "libc",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -334,12 +350,25 @@ version = "0.1.0"
 [[package]]
 name = "part_5_ray_trace_multithread_scanlines"
 version = "0.1.0"
+dependencies = [
+ "num_cpus",
+]
 
 [[package]]
 name = "part_6_ray_trace_window"
 version = "0.1.0"
 dependencies = [
  "minifb",
+ "num_cpus",
+]
+
+[[package]]
+name = "part_7_ray_trace_primitives"
+version = "0.1.0"
+dependencies = [
+ "minifb",
+ "num_cpus",
+ "stb_image_write_rust",
 ]
 
 [[package]]
@@ -525,6 +554,12 @@ name = "smallvec"
 version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
+
+[[package]]
+name = "stb_image_write_rust"
+version = "1.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aef88b44d5213ff7bc36e770daba304a230b15685969823ad63790b915b263b4"
 
 [[package]]
 name = "syn"
