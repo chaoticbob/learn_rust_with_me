@@ -51,7 +51,7 @@ let i = add(1, 2); // i32
 ```
 
 # Type Strictness
-Rust has very strong type requirements and there is no implicit conversion like C/C++. Mixing types will generally result in a compiler error in Rust.
+Rust has very strict type requirements and there is not implicit conversion like C/C++. Mixing types will generally result in a compiler error in Rust.
 ```rust
 let x = 1.0 + 2;        // ERROR: cannot add an integer to a float
 let y = 1.0 + 2 as f32; // OK
